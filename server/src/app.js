@@ -17,7 +17,7 @@ if (ML_SERVICE_URL && !ML_SERVICE_URL.startsWith('http')) {
 // Middleware
 app.use(helmet());
 app.use(cors({
-      origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Vite frontend
+  origin: [process.env.FRONTEND_URL, 'http://localhost:5173', 'https://geotruthai-client.vercel.app'].filter(Boolean),
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
