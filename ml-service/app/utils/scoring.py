@@ -17,51 +17,62 @@ def calculate_trust_score(
     text: str = ""
 ) -> Tuple[float, str, Dict[str, Any]]:
     """
-    Advanced Hybrid Trust Scoring (v2.0)
-    Combines BERT confidence, News API credibility, and Multimodal verification.
+    Advanced Hybrid Trust Scoring (v3.0)
+    Balanced weightage with strong penalty for fake signals.
     """
-    # 🛡️ Industry-Grade Weighted Logic
     weights = {
-        'bert': 0.45,      # AI Model
-        'news': 0.40,      # External verification
-        'image': 0.10,     # Visual authenticity
-        'patterns': 0.05   # Style/Tone
+        'bert': 0.40,
+        'news': 0.35,
+        'image': 0.15,
+        'patterns': 0.10
     }
     
-    # Calculate individual components (0-100)
+    # AI Score (0-100)
     bert_val = bert_confidence if bert_prediction == 'real' else (100 - bert_confidence)
+    
+    # News Credibility
     news_val = news_credibility
-    img_val = image_score # Fixed parameter name
     
-    # Pattern val based on text length and caps
-    pattern_val = 100
-    if text.isupper() and len(text) > 10: pattern_val -= 30
-    if len(text) < 50: pattern_val -= 10
+    # Image Authenticity
+    img_val = image_score
     
-    # Weighted Aggregation (Balanced Stage)
-    raw_trust = (
+    # Pattern Penalty Logic
+    pattern_score = 100
+    text_lower = text.lower()
+    
+    # Caps penalty
+    if text.isupper() and len(text) > 15: pattern_score -= 30
+    
+    # Sensationalism penalty
+    sensational_words = ['shocking', 'unbelievable', 'exposed', 'secret', 'miracle', 'conspiracy']
+    if any(w in text_lower for w in sensational_words):
+        pattern_score -= 20
+        
+    # Suspicious word count penalty
+    if suspicious_words:
+        pattern_score -= min(30, len(suspicious_words) * 10)
+
+    # Weighted Calculation
+    trust = (
         (bert_val * weights['bert']) +
         (news_val * weights['news']) +
         (img_val * weights['image']) +
-        (pattern_val * weights['patterns'])
+        (pattern_score * weights['patterns'])
     )
+
+    # Final Smoothing
+    trust = round(max(5, min(95, trust)), 1)
     
-    # 🚀 ULTRA-POLARIZATION with Hard Constraints
-    if bert_prediction == 'real':
-        # Map 50-100 to 80-98 (Guaranteed High)
-        trust = 80 + (raw_trust - 50) * 0.36 if raw_trust >= 50 else 80
-    else:
-        # Map 0-50 to 5-30 (Guaranteed Low)
-        trust = 5 + (raw_trust) * 0.5 if raw_trust < 50 else 30
-        
-    trust = round(max(0, min(100, trust)), 1)
-    level = "High 🟢" if trust >= 65 else "Low 🔴"
+    # Adaptive Level
+    if trust >= 75: level = "High 🟢"
+    elif trust >= 40: level = "Neutral ⚠️"
+    else: level = "Low 🔴"
     
     diagnostics = {
         'ai_contribution': round(bert_val * weights['bert'], 1),
         'verification_contribution': round(news_val * weights['news'], 1),
         'image_contribution': round(img_val * weights['image'], 1),
-        'pattern_penalty': round(100 - pattern_val, 1),
+        'pattern_score': round(pattern_score * weights['patterns'], 1),
         'final_trust': trust
     }
     

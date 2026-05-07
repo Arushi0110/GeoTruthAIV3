@@ -31,19 +31,31 @@ def predict_news(text: str):
             fake_prob, real_prob = probs[0], probs[1]
         except: pass
 
-    # 2. HIGH-QUALITY SIGNAL (Overrides)
-    # If the text looks like a professional report, boost 'Real' significantly
-    if any(m in text_lower for m in ['according to', 'reported by', 'official', 'confirmed', 'sources', 'data shows']):
-        real_prob += 0.3 # 30% boost for professional citations
+    # 2. AGGRESSIVE FAKE SIGNAL DETECTION
+    # If the text has strong fake keywords, boost 'Fake' significantly
+    if any(m in text_lower for m in FAKE_KEYWORDS):
+        fake_prob += 0.4
     
-    # Penalize clickbait patterns
-    if text.count('!') > 1 or any(m in text_lower for m in ['shocking', 'secret', 'exposed']):
-        fake_prob += 0.2
+    # Penalize extreme punctuation and sensationalism
+    if text.count('!') > 2 or text.count('?') > 2:
+        fake_prob += 0.25
+        
+    if any(m in text_lower for m in ['shocking', 'unbelievable', 'exposed', 'miracle', 'conspiracy', 'government hiding']):
+        fake_prob += 0.3
+
+    # Professional boost (Real)
+    if any(m in text_lower for m in ['according to', 'reported by', 'official', 'confirmed', 'sources say', 'scientific study']):
+        real_prob += 0.2
         
     # 3. FINAL DECISION
     total = fake_prob + real_prob
     fake_prob /= total
     real_prob /= total
+    
+    # Push prediction to be more decisive
+    if abs(fake_prob - real_prob) < 0.1:
+        # If too close, look for more "Real" signals to break tie
+        if len(text) > 200: real_prob += 0.05
     
     prediction = 'fake' if fake_prob > real_prob else 'real'
     confidence = (fake_prob if prediction == 'fake' else real_prob) * 100
