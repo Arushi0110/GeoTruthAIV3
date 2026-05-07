@@ -1,56 +1,53 @@
 services:
-  # -----------------------------
-  # 1️⃣ Node/Express API service
-  # -----------------------------
   - type: web
-    name: geotruthai-api
-    env: node
-    plan: free
-    region: oregon
-    buildCommand: npm install
-    startCommand: npm run dev
-    rootDir: server
-    envVars:
-      - key: MONGO_URI
-        fromService:
-          name: geotruthai-mongo
-          type: redis
-      - key: JWT_SECRET
-        sync: false
-      - key: CLOUDINARY_URL
-        sync: false
-      - key: GOOGLE_VISION_API_KEY
-        sync: false
-      - key: FRONTEND_URL
-        sync: false
-      - key: ML_SERVICE_URL
-        sync: false
-
-  # -----------------------------
-  # 2️⃣ FastAPI ML service
-  # -----------------------------
-  - type: web
-    name: geotruthai-ml
-    env: python
-    plan: free
-    region: oregon
-    buildCommand: |
-      pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
-    rootDir: ml-service
-    envVars:
-      - key: MONGO_URI
-        fromService:
-          name: geotruthai-mongo
-          type: redis
-      - key: FRONTEND_URL
-        sync: false
-
-  # -----------------------------
-  # 3️⃣ MongoDB
-  # -----------------------------
-  - type: redis
-    name: geotruthai-mongo
-    plan: free
-    region: oregon
-    ipAllowList: [] # allow internal access only
+      name: geotruthai-api
+          env: node
+              plan: free
+                  region: oregon
+                      buildCommand: npm install
+                          startCommand: npm run dev
+                              rootDir: server
+                                  envVars:
+                                        - key: MONGO_URI
+                                                fromService:
+                                                          name: geotruthai-mongo
+                                                                    type: redis
+                                                                              property: connectionString
+                                                                                    - key: JWT_SECRET
+                                                                                            value: ${JWT_SECRET}
+                                                                                                  - key: CLOUDINARY_URL
+                                                                                                          value: ${CLOUDINARY_URL}
+                                                                                                                - key: GOOGLE_VISION_API_KEY
+                                                                                                                        value: ${GOOGLE_VISION_API_KEY}
+                                                                                                                              - key: FRONTEND_URL
+                                                                                                                                      value: ${FRONTEND_URL}
+                                                                                                                                            - key: ML_SERVICE_URL
+                                                                                                                                                    value: ${ML_SERVICE_URL}
+                                                                                                                                                      - type: web
+                                                                                                                                                          name: geotruthai-ml
+                                                                                                                                                              env: python
+                                                                                                                                                                  plan: free
+                                                                                                                                                                      region: oregon
+                                                                                                                                                                          buildCommand: |
+                                                                                                                                                                                pip install -r ml-service/requirements.txt
+                                                                                                                                                                                    startCommand: uvicorn ml-service/app.main:app --host 0.0.0.0 --port 8000
+                                                                                                                                                                                        rootDir: .
+                                                                                                                                                                                            envVars:
+                                                                                                                                                                                                  - key: MONGO_URI
+                                                                                                                                                                                                          fromService:
+                                                                                                                                                                                                                    name: geotruthai-mongo
+                                                                                                                                                                                                                              type: redis
+                                                                                                                                                                                                                                        property: connectionString
+                                                                                                                                                                                                                                              - key: JWT_SECRET
+                                                                                                                                                                                                                                                      value: ${JWT_SECRET}
+                                                                                                                                                                                                                                                            - key: CLOUDINARY_URL
+                                                                                                                                                                                                                                                                    value: ${CLOUDINARY_URL}
+                                                                                                                                                                                                                                                                          - key: GOOGLE_VISION_API_KEY
+                                                                                                                                                                                                                                                                                  value: ${GOOGLE_VISION_API_KEY}
+                                                                                                                                                                                                                                                                                        - key: FRONTEND_URL
+                                                                                                                                                                                                                                                                                                value: ${FRONTEND_URL}
+                                                                                                                                                                                                                                                                                                  - type: redis
+                                                                                                                                                                                                                                                                                                      name: geotruthai-mongo
+                                                                                                                                                                                                                                                                                                          plan: free
+                                                                                                                                                                                                                                                                                                              region: oregon
+                                                                                                                                                                                                                                                                                                              
