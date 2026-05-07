@@ -1,31 +1,56 @@
 services:
-  # 1. Backend Service (Node.js)
+  # -----------------------------
+  # 1️⃣ Node/Express API service
+  # -----------------------------
   - type: web
-    name: geotruth-backend
+    name: geotruthai-api
     env: node
     plan: free
-    rootDir: server
+    region: oregon
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: npm run dev
+    rootDir: server
     envVars:
       - key: MONGO_URI
+        fromService:
+          name: geotruthai-mongo
+          type: redis
+      - key: JWT_SECRET
         sync: false
       - key: CLOUDINARY_URL
         sync: false
+      - key: GOOGLE_VISION_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
       - key: ML_SERVICE_URL
-        fromService:
-          name: geotruth-ml-service
-          type: web
-          property: host
+        sync: false
 
-  # 2. ML Service (Python)
+  # -----------------------------
+  # 2️⃣ FastAPI ML service
+  # -----------------------------
   - type: web
-    name: geotruth-ml-service
+    name: geotruthai-ml
     env: python
     plan: free
+    region: oregon
+    buildCommand: |
+      pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
     rootDir: ml-service
-    buildCommand: pip install -r requirements.txt && python -m spacy download en_core_web_sm
-    startCommand: gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:$PORT
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.10.0
+      - key: MONGO_URI
+        fromService:
+          name: geotruthai-mongo
+          type: redis
+      - key: FRONTEND_URL
+        sync: false
+
+  # -----------------------------
+  # 3️⃣ MongoDB
+  # -----------------------------
+  - type: redis
+    name: geotruthai-mongo
+    plan: free
+    region: oregon
+    ipAllowList: [] # allow internal access only
