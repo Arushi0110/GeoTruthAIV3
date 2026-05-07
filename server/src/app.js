@@ -9,7 +9,10 @@ const routes = require('./routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8001';
+let ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8001';
+if (ML_SERVICE_URL && !ML_SERVICE_URL.startsWith('http')) {
+  ML_SERVICE_URL = `https://${ML_SERVICE_URL}.onrender.com`;
+}
 
 // Middleware
 app.use(helmet());

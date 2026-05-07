@@ -1,6 +1,9 @@
 const axios = require('axios');
 const { updateUserTrust, getUserTrust } = require('../services/trustService');
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8001';
+let ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8001';
+if (ML_SERVICE_URL && !ML_SERVICE_URL.startsWith('http')) {
+  ML_SERVICE_URL = `https://${ML_SERVICE_URL}.onrender.com`;
+}
 
 const verifyNews = async (req, res) => {
   try {
