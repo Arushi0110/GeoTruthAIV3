@@ -1,8 +1,10 @@
 import axios from "axios";
 
-// ✅ Create axios instance
+const isDev = import.meta.env.DEV;
 const API = axios.create({
-      baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
+  baseURL: isDev 
+    ? "http://localhost:3000/api" 
+    : "https://geotruth-backend.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
