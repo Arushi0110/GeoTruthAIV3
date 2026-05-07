@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const axios = require('axios');
+    const axios = require('axios');
 const connectDB = require('./config/db');
 const routes = require('./routes');
 
@@ -14,7 +14,7 @@ const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8001';
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite frontend
+      origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Vite frontend
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
