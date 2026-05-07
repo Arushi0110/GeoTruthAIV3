@@ -1,0 +1,17 @@
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+gunicorn==23.0.0
+pydantic==2.9.2
+transformers==4.44.2
+torch==2.4.1 --index-url https://download.pytorch.org/whl/cpu
+scikit-learn==1.5.2
+joblib==1.4.2
+lime==0.2.0.1
+pandas==2.2.2
+numpy==1.26.4
+requests==2.32.3
+python-dotenv==1.0.1
+nltk==3.8.1
+spacy==3.7.5
+imagehash==4.3.2
+Pillow==10.4.0
